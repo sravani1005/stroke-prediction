@@ -1,0 +1,81 @@
+from google.colab import files
+
+uploaded = files.upload()
+
+for fn in uploaded.keys():
+  print('User uploaded file "{name}" with length {length} bytes'.format(
+      name=fn, length=len(uploaded[fn])))
+
+import numpy as np
+import pandas as pd
+
+data=pd.read_csv("healthcare-dataset-stroke-data (2).csv")
+
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
+
+data.shape
+data
+
+print(data.dtypes)
+
+print("gender:",set(data["gender"]))
+print("ever_married:",set(data["ever_married"]))
+print("work_type:",set(data["work_type"]))
+print("Residence_type:",set(data["Residence_type"]))
+print("smoking_status:",set(data["smoking_status"]))
+
+data['gender']= data['gender'].map({'Male':0,'Female':1,'Other':2})
+data['work_type']=data['work_type'].map({'Govt_job':1,'Never_worked':0,'Private':2,'children':3,'Self-employed':4})
+data['Residence_type']=data['Residence_type'].map({'Urban':0,'Rural':1})
+
+data['ever_married']=data['ever_married'].map({'Yes':0,'No':1})
+data['smoking_status']=data['smoking_status'].map({'formerly smoked':0,'never smoked':1,'smokes':2,'Unknown':3})
+
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+x=data.iloc[:,0:9]
+y=data.iloc[:,11:12]
+
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+data=sc.fit(x)
+dd=sc.transform(x)
+print(data)
+print(dd)
+print(x)
+
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.25,random_state=True)
+lr=LogisticRegression(random_state=99)
+mm=lr.fit(x_train,y_train)
+print(mm.score(x_train,y_train)) 
+print(mm.score(x_test,y_test))
+yp=mm.predict(x_test)
+
+from sklearn.metrics import accuracy_score
+print ("Accuracy : ", accuracy_score(yp,y_test))
+print(x_train.shape)
+print(y_train.shape)
+print(x_test.shape)
+print(y_test.shape)
+
+from sklearn.metrics import classification_report
+print(classification_report(yp,y_test))
+
+
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
+cm=confusion_matrix(yp,y_test)
+d=ConfusionMatrixDisplay(cm).plot()
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+
+kk=KNeighborsClassifier(n_neighbors=15)
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2, random_state=42)
+kk.fit(x_train,y_train)
+print(kk.score(x_test,y_test))
+knn2 = KNeighborsClassifier(n_neighbors=20)
+knn2.fit(x_train,y_train)
+print(knn2.score(x_test, y_test))
